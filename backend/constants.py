@@ -1,0 +1,1 @@
+MODEL_TOPIC = "TCC_2021_2"

@@ -8,3 +8,10 @@ services:
       context: .
     volumes:
       - .:/app
+
+  publisher:
+    build:
+      context: .
+      dockerfile: publisher.dockerfile
+    volumes:
+      - .:/app
