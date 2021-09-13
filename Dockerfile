@@ -4,10 +4,12 @@ WORKDIR /app
 
 COPY requirements requirements
 
+RUN apt-get update && apt-get -y install libpq-dev gcc
+
 RUN pip install --no-cache-dir -r requirements/base.txt
 
 COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--app-dir", "backend", "--host", "0.0.0.0", "--reload"]
+CMD ["uvicorn", "api:app", "--app-dir", "backend", "--host", "0.0.0.0", "--reload"]
