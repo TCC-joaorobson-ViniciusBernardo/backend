@@ -12,12 +12,22 @@ services:
       postgres:
         condition: service_healthy
 
+  mqtt-broker:
+    image: eclipse-mosquitto:latest
+    ports:
+      - "1883:1883"
+      - "8083:8083"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+
   publisher:
     build:
       context: .
       dockerfile: publisher.dockerfile
     volumes:
       - .:/app
+    depends_on:
+      - "mqtt-broker"
 
   postgres:
     image: postgres:13.3-alpine

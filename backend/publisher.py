@@ -19,7 +19,7 @@ class MQTT:
         self.client.on_connect = self.on_connect
         self.client.on_message = self.process_message
 
-        self.client.connect("mqtt.eclipseprojects.io", 1883, 60)
+        self.client.connect("mqtt-broker", 1883, 60)
 
         self.client.loop_start()
 
