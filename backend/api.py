@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from models.predictions import predict_load_curve
 from models.train_regressor import train_xgbregressor
+from models.utils import get_registered_models, get_model_versions
 
 app = FastAPI()
 
@@ -37,3 +38,12 @@ async def get_load_curve(params: LoadCurveParams):
 async def train_model(params: TrainParams):
     if params.model == "xgboost":
         train_xgbregressor() 
+
+
+@app.get("/models/")
+def get_models(model_name: str = ""):
+    if not model_name:
+        return get_registered_models()
+
+    else:
+        return get_model_versions(model_name)
