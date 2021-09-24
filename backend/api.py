@@ -7,9 +7,11 @@ from pydantic import BaseModel
 
 from models.predictions import predict_load_curve
 from models.train_regressor import train_xgbregressor
-from models.utils import get_registered_models, get_model_versions
+from models.info import ModelsInformation
 
 app = FastAPI()
+
+models_info = ModelsInformation()
 
 class LoadCurveParams(BaseModel):
     building: str
@@ -43,7 +45,12 @@ async def train_model(params: TrainParams):
 @app.get("/models/")
 def get_models(model_name: str = ""):
     if not model_name:
-        return get_registered_models()
+        return models_info.get_registered_models()
 
     else:
-        return get_model_versions(model_name)
+        return models_info.get_model_versions(model_name)
+
+
+@app.get("/model_metrics/")
+def get_model_metrics(run_id: str):
+    return models_info.retrieve_model_metrics(run_id)
