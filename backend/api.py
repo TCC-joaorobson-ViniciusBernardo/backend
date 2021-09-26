@@ -1,5 +1,6 @@
+import logging
 import random
-from typing import Literal
+from typing import Literal, Optional
 
 
 from fastapi import FastAPI
@@ -7,11 +8,17 @@ from pydantic import BaseModel
 
 from models.predictions import predict_load_curve
 from models.train_regressor import train_xgbregressor
-from models.info import ModelsInformation
+from models.repository import ModelsRepository
 
 app = FastAPI()
 
-models_info = ModelsInformation()
+models_repository = ModelsRepository()
+
+
+logger = logging.getLogger("api")
+logger.setLevel(logging.INFO)
+
+
 
 class LoadCurveParams(BaseModel):
     building: str
@@ -43,14 +50,23 @@ async def train_model(params: TrainParams):
 
 
 @app.get("/models/")
-def get_models(model_name: str = ""):
+def get_models(model_name: Optional[str] = None):
     if not model_name:
-        return models_info.get_registered_models()
+        return models_repository.get_registered_models()
 
     else:
-        return models_info.get_model_versions(model_name)
+        return models_repository.get_model_versions(model_name)
 
 
-@app.get("/model_metrics/")
+@app.get("/model_metrics/{run_id}")
 def get_model_metrics(run_id: str):
-    return models_info.retrieve_model_metrics(run_id)
+    logger.info("oooooooooooi")
+    return models_repository.retrieve_model_metrics(run_id)
+
+
+@app.delete("/delete_model/")
+def delete_model(model_name: str, version: Optional[int] = None):
+    if version:
+        models_repository.delete_model_version(model_name, version)
+    else:
+        models_repository.delete_model(model_name)
