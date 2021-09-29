@@ -1,10 +1,10 @@
 import logging
 import random
-from typing import Literal, Optional
+from typing import Literal, Optional, Set, Union
 
 
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictInt, StrictFloat, validator
 
 from models.predictions import predict_load_curve
 from models.train_regressor import train_xgbregressor
@@ -24,8 +24,28 @@ class LoadCurveParams(BaseModel):
     building: str
     data: list
 
-class TrainParams(BaseModel):
+
+
+class XGBoostParams(BaseModel):
+    n_estimators: StrictInt = 100
+    max_depth: Optional[StrictInt] = None
+    learning_rate: Optional[StrictFloat] = None
+    gamma: Optional[StrictFloat] = None
+    random_state: Optional[StrictInt] = None
+
+
+class TrainConfig(BaseModel):
     model: Literal["xgboost"]
+    test_size: StrictFloat = 0.2
+    remove_outliers = StrictBool = True
+    hyperparams: Optional[Union[XGBoostParams]] = None
+    metrics: Set[str] = {"rmse"}
+
+    @validator("metrics")
+    def check_if_metrics_are_valid(cls, metrics):
+        invalid_metrics = metrics.difference({"rmse", "mse", "r2"})
+        if invalid_metrics:
+            raise ValueError(f"Not supported metrics used: {invalid_metrics}")
 
 
 @app.get("/")
@@ -44,23 +64,18 @@ async def get_load_curve(params: LoadCurveParams):
     return load_curve 
 
 @app.post("/train")
-async def train_model(params: TrainParams):
-    if params.model == "xgboost":
+async def train_model(config: TrainConfig):
+    if config.model == "xgboost":
         train_xgbregressor() 
 
 
-@app.get("/models/")
+@app.get("/models")
 def get_models(model_name: Optional[str] = None):
-    if not model_name:
-        return models_repository.get_registered_models()
-
-    else:
-        return models_repository.get_model_versions(model_name)
+    return models_repository.get_models_versions(model_name)
 
 
 @app.get("/model_metrics/{run_id}")
 def get_model_metrics(run_id: str):
-    logger.info("oooooooooooi")
     return models_repository.retrieve_model_metrics(run_id)
 
 

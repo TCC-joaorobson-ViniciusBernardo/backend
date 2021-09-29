@@ -20,8 +20,9 @@ class ModelsRepository:
         return [{"model_name": r.name, "creation_time": r.creation_timestamp} for r in registered_models]
 
 
-    def get_model_versions(self, model_name: str) -> list[dict]:
-        versions = self.client.search_model_versions(f"name='{model_name}'")
+    def get_models_versions(self, model_name: str) -> list[dict]:
+        self.logger.info("Retrieving stored models versions")
+        versions = self.client.search_model_versions("")
 
         return [dict(model_version) for model_version in versions]   
 
