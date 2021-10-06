@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements/publisher.txt
 
 COPY . .
 
-CMD ["python3", "backend/publisher.py"]
+CMD ["python3", "sigeml/publisher.py"]

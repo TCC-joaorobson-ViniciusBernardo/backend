@@ -9,7 +9,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from xgboost import XGBRegressor
 
-from schemas import TrainConfig
+from sigeml.schemas import TrainConfig
+from sigeml.config.config import get_postgres_uri
 
 
 class LoadCurveModel:

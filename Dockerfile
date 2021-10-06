@@ -12,4 +12,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "api:app", "--app-dir", "backend", "--host", "0.0.0.0", "--reload"]
+CMD ["uvicorn", "sigeml.api:app", "--host", "0.0.0.0", "--reload"]

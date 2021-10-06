@@ -1,15 +1,16 @@
 import logging
 import random
-from typing import Literal, Optional, Set, Union
+from typing import Optional, Set, Union
+from typing_extensions import Literal
 
 
 from fastapi import FastAPI
 from pydantic import BaseModel, StrictInt, StrictFloat, validator
 
-from models.model import XGBoostModel
-from models.predictions import predict_load_curve
-from models.repository import ModelsRepository, ExperimentsRepository
-from schemas import LoadCurveParams, TrainConfig
+from sigeml.models.model import XGBoostModel
+from sigeml.models.predictions import predict_load_curve
+from sigeml.models.repository import ModelsRepository, ExperimentsRepository
+from sigeml.schemas import LoadCurveParams, TrainConfig
 
 app = FastAPI()
 

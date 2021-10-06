@@ -42,4 +42,4 @@ services:
       timeout: 3s
       retries: 5
     volumes:
-        - ./backend/database_scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+        - ./sigeml/database_scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
