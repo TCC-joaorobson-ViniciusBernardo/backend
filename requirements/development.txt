@@ -5,9 +5,9 @@
 #
 #    pip-compile-multi
 #
-astroid==2.7.3
+astroid==2.8.0
     # via pylint
-black==21.8b0
+black==21.9b0
     # via -r requirements/development.in
 click==8.0.1
     # via
@@ -30,19 +30,19 @@ pathspec==0.9.0
     # via black
 pep517==0.11.0
     # via pip-tools
-pip-compile-multi==2.4.1
+pip-compile-multi==2.4.2
     # via -r requirements/development.in
-pip-tools==6.2.0
+pip-tools==6.3.0
     # via pip-compile-multi
-platformdirs==2.3.0
+platformdirs==2.4.0
     # via
     #   black
     #   pylint
 pycodestyle==2.7.0
     # via -r requirements/development.in
-pylint==2.10.2
+pylint==2.11.1
     # via -r requirements/development.in
-regex==2021.8.28
+regex==2021.9.30
     # via black
 toml==0.10.2
     # via pylint
@@ -50,7 +50,7 @@ tomli==1.2.1
     # via
     #   black
     #   pep517
-toposort==1.6
+toposort==1.7
     # via pip-compile-multi
 typed-ast==1.4.3
     # via
@@ -61,11 +61,12 @@ typing-extensions==3.10.0.2
     #   astroid
     #   black
     #   importlib-metadata
+    #   pylint
 wheel==0.37.0
     # via pip-tools
 wrapt==1.12.1
     # via astroid
-zipp==3.5.0
+zipp==3.6.0
     # via
     #   importlib-metadata
     #   pep517
