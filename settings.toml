@@ -1,5 +1,5 @@
 [development]
-DB_HOST = "localhost"
+DB_HOST = "postgres"
 DB_NAME = "mlflow"
 DB_USER = "postgres"
 DB_PASSWORD = "password"

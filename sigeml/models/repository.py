@@ -4,10 +4,12 @@ from typing import Optional
 import mlflow
 from mlflow.tracking import MlflowClient
 
+from sigeml.config.config import get_postgres_uri
+
 
 class Repository:
     def __init__(self) -> None:
-        mlflow.set_tracking_uri("postgresql://postgres:password@postgres:5432/mlflow")
+        mlflow.set_tracking_uri(get_postgres_uri())
         self.client = MlflowClient()
         self.logger = logging.getLogger(__name__)
 

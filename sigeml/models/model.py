@@ -15,7 +15,7 @@ from sigeml.config.config import get_postgres_uri
 
 class LoadCurveModel:
     def __init__(self, config: TrainConfig) -> None:
-        mlflow.set_tracking_uri("postgresql://postgres:password@postgres:5432/mlflow")
+        mlflow.set_tracking_uri(get_postgres_uri())
 
         if config.is_experiment:
             mlflow.set_experiment(config.experiment_name)

@@ -3,9 +3,11 @@ from mlflow.tracking import MlflowClient
 import numpy as np
 from xgboost import DMatrix
 
+from sigeml.config.config import get_postgres_uri
+
 
 def predict_load_curve(data: list) -> dict:
-    mlflow.set_tracking_uri("postgresql://postgres:password@postgres:5432/mlflow")
+    mlflow.set_tracking_uri(get_postgres_uri())
     client = MlflowClient()
     registered_models = client.list_registered_models()
 
