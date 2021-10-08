@@ -1,4 +1,4 @@
-from typing import Literal, Optional, Set, Union
+from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, StrictBool, StrictInt, StrictFloat, StrictStr, validator
 
@@ -23,3 +23,11 @@ class TrainConfig(BaseModel):
     model_params: Optional[Union[XGBoostParams]] = None
     is_experiment: StrictBool = True
     experiment_name: StrictStr = ""
+
+    @validator("is_experiment", "experiment_name", always=True)
+    def validate_experiment_name(   # pylint: disable=no-self-argument,no-self-use
+        cls, value, values
+    ) -> str:
+        if "is_experiment" in values and values["is_experiment"] and not value:
+            raise ValueError("Experiment must have a name")
+        return value

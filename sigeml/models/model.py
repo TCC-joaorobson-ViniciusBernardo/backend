@@ -23,9 +23,11 @@ class LoadCurveModel:
         self.config = config
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
+        self.data: pd.DataFrame = pd.DataFrame()
+        self.X_train = self.X_test = self.y_train = self.y_test = np.array([])
 
     def load_data(self) -> None:
-        self.data = pd.read_csv("/app/backend/models/quarterly_measurements_CPD1.csv")
+        self.data = pd.read_csv("/app/sigeml/models/quarterly_measurements_CPD1.csv")
         self.data["collection_date"] = pd.to_datetime(
             self.data["collection_date"], format="%Y-%m-%d %H:%M:%S"
         )
@@ -79,16 +81,16 @@ class LoadCurveModel:
 class XGBoostModel(LoadCurveModel):
     def __init__(self, config: TrainConfig):
         super().__init__(config)
+        self.params = self.config.model_params
 
     def run(self):
         with mlflow.start_run():
-            params = self.config.model_params
             xgb = XGBRegressor(
-                n_estimators=params.n_estimators,
-                max_depth=params.max_depth,
-                gamma=params.gamma,
-                learning_rate=params.learning_rate,
-                random_state=params.random_state,
+                n_estimators=self.params.n_estimators,
+                max_depth=self.params.max_depth,
+                gamma=self.params.gamma,
+                learning_rate=self.params.learning_rate,
+                random_state=self.params.random_state,
             ).fit(self.X_train, self.y_train)
 
             xgb.fit(self.X_train, self.y_train)
@@ -98,21 +100,21 @@ class XGBoostModel(LoadCurveModel):
             rmse = self.evaluate(self.y_test, y_pred)
 
             self.logger.info(
-                f"XGB model (n_estimators={params.n_estimators}, max_depth={params.max_depth}, "
-                f"learning_rate={params.learning_rate}, gamma={params.gamma}, "
-                f"random_state={params.random_state})"
+                f"XGB model (n_estimators={self.params.n_estimators}, "
+                f"max_depth={self.params.max_depth}, learning_rate={self.params.learning_rate}, "
+                f"gamma={self.params.gamma}, random_state={self.params.random_state})"
             )
             self.logger.info(f"RMSE: {rmse:.2f}")
 
-            mlflow.log_param("n_estimators", params.n_estimators)
-            mlflow.log_param("max_depth", params.max_depth)
-            mlflow.log_param("learning_rate", params.learning_rate)
-            mlflow.log_param("gamma", params.gamma)
-            mlflow.log_param("random_state", params.random_state)
+            mlflow.log_param("n_estimators", self.params.n_estimators)
+            mlflow.log_param("max_depth", self.params.max_depth)
+            mlflow.log_param("learning_rate", self.params.learning_rate)
+            mlflow.log_param("gamma", self.params.gamma)
+            mlflow.log_param("random_state", self.params.random_state)
             mlflow.log_metric("rmse", rmse)
 
             if not self.config.is_experiment:
-                mlflow.xgboost.log_model(xgb, "model")
+                mlflow.xgboost.log_model(xgb, "model", registered_model_name="XGBRegressor")
 
     def evaluate(self, actual, pred) -> None:
         rmse = np.sqrt(mean_squared_error(actual, pred))

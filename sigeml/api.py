@@ -1,24 +1,21 @@
 import logging
 import random
-from typing import Optional, Set, Union
-from typing_extensions import Literal
-
+from typing import Optional
 
 from fastapi import FastAPI
-from pydantic import BaseModel, StrictInt, StrictFloat, validator
 
 from sigeml.models.model import XGBoostModel
 from sigeml.models.predictions import predict_load_curve
 from sigeml.models.repository import ModelsRepository, ExperimentsRepository
 from sigeml.schemas import LoadCurveParams, TrainConfig
 
+logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
+logger = logging.getLogger("sigeml")
+
 app = FastAPI()
 
 models_repository = ModelsRepository()
 experiments_repository = ExperimentsRepository()
-
-logger = logging.getLogger("api")
-logger.setLevel(logging.INFO)
 
 
 @app.get("/")
@@ -38,8 +35,9 @@ async def get_load_curve(params: LoadCurveParams):
 
 
 @app.post("/train")
-async def train_model(config: TrainConfig):
+def train_model(config: TrainConfig):
     if config.model == "xgboost":
+        logger.info(str(config))
         xgb = XGBoostModel(config)
         xgb.train()
 
@@ -51,9 +49,9 @@ def get_experiments(experiment_id: Optional[str] = None):
     return experiments_repository.get_experiments()
 
 
-@app.get("/models/")
-def get_models(model_name: Optional[str] = None):
-    return models_repository.get_models_versions(model_name)
+@app.get("/models")
+def get_models():
+    return models_repository.get_models_versions()
 
 
 @app.get("/model_metrics/{run_id}")

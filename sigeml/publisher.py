@@ -1,4 +1,3 @@
-from datetime import datetime
 import json
 import logging
 import random
@@ -23,23 +22,18 @@ class MQTT:
 
         self.client.loop_start()
 
-    def set_state(self, state, devices_handler):
-        self.state = state
-        self.devices_handler = devices_handler
-
-    def on_connect(self, client, userdata, flags, rc):
+    def on_connect(self, **kwargs):  # pylint: disable=unused-argument
         self.client.subscribe(MODEL_TOPIC)
 
     def send_data(self, topic, state):
         self.client.publish(topic, state)
 
-    def process_message(self, client, userdata, msg):
+    def process_message(self, client, userdata, msg):  # pylint: disable=unused-argument
         try:
             msg_data = json.loads(msg.payload.decode())
             self.logger.info(f"Message: {msg_data}")
-        except Exception as e:
-            print("Message is not in JSON format!", e)
-            return -1
+        except TypeError as e:
+            self.logger.error(f"{e}")
 
 
 if __name__ == "__main__":
