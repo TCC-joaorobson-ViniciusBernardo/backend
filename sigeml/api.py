@@ -9,7 +9,7 @@ from sigeml.models.predictions import predict_load_curve
 from sigeml.models.repository import ModelsRepository, ExperimentsRepository
 from sigeml.schemas import LoadCurveParams, TrainConfig
 
-logging.config.fileConfig('logging.conf', disable_existing_loggers=False)
+logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger("sigeml")
 
 app = FastAPI()

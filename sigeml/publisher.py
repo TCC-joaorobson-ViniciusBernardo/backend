@@ -39,7 +39,5 @@ class MQTT:
 if __name__ == "__main__":
     mq = MQTT()
     while True:
-        mq.send_data(
-            MODEL_TOPIC, json.dumps({"prediction": random.randint(1000, 1200)})
-        )
+        mq.send_data(MODEL_TOPIC, json.dumps({"prediction": random.randint(1000, 1200)}))
         time.sleep(10)

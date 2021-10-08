@@ -25,7 +25,7 @@ class TrainConfig(BaseModel):
     experiment_name: StrictStr = ""
 
     @validator("is_experiment", "experiment_name", always=True)
-    def validate_experiment_name(   # pylint: disable=no-self-argument,no-self-use
+    def validate_experiment_name(  # pylint: disable=no-self-argument,no-self-use
         cls, value, values
     ) -> str:
         if "is_experiment" in values and values["is_experiment"] and not value:
