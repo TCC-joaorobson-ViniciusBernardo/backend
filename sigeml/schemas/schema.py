@@ -20,7 +20,7 @@ class TrainConfig(BaseModel):
     model: Literal["xgboost"]
     test_size: StrictFloat = 0.2
     remove_outliers: StrictBool = True
-    model_params: Optional[Union[XGBoostParams]] = None
+    model_params: Optional[Union[XGBoostParams]] = XGBoostParams()
     is_experiment: StrictBool = True
     experiment_name: StrictStr = ""
 
