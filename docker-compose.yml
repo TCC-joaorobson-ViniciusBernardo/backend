@@ -11,6 +11,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    dns:
+      - "8.8.8.8"
 
   mqtt-broker:
     image: eclipse-mosquitto:latest
