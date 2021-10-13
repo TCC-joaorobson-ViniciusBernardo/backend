@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, StrictBool, StrictInt, StrictFloat, StrictStr, validator
@@ -6,6 +7,18 @@ from pydantic import BaseModel, StrictBool, StrictInt, StrictFloat, StrictStr, v
 class LoadCurveParams(BaseModel):
     building: str
     data: list
+
+
+class SIGEQueryParams(BaseModel):
+    id: StrictInt
+    start_date: datetime
+    end_date: datetime
+    type: StrictStr
+
+
+class DataProcessingConfig(BaseModel):
+    remove_outliers: StrictBool = True
+    query_params: SIGEQueryParams
 
 
 class XGBoostParams(BaseModel):
@@ -19,8 +32,7 @@ class XGBoostParams(BaseModel):
 class TrainConfig(BaseModel):
     model: Literal["xgboost"]
     test_size: StrictFloat = 0.2
-    remove_outliers: StrictBool = True
-    model_params: Optional[Union[XGBoostParams]] = XGBoostParams()
+    model_params: Union[XGBoostParams] = XGBoostParams()
     is_experiment: StrictBool = True
     experiment_name: StrictStr = ""
 

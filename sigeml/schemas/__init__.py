@@ -1,1 +1,6 @@
-from sigeml.schemas.schema import LoadCurveParams, TrainConfig
+from sigeml.schemas.schema import (
+    DataProcessingConfig,
+    LoadCurveParams,
+    SIGEQueryParams,
+    TrainConfig
+)

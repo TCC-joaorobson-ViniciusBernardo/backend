@@ -11,10 +11,12 @@ from xgboost import XGBRegressor
 
 from sigeml.schemas import TrainConfig
 from sigeml.config.config import get_postgres_uri
+from sigeml.models.dataset import Dataset
+from sigeml.services.sige import get_data_from_sige
 
 
 class LoadCurveModel:
-    def __init__(self, config: TrainConfig) -> None:
+    def __init__(self, config: TrainConfig, dataset: Dataset) -> None:
         mlflow.set_tracking_uri(get_postgres_uri())
 
         if config.is_experiment:
@@ -23,29 +25,8 @@ class LoadCurveModel:
         self.config = config
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.INFO)
-        self.data: pd.DataFrame = pd.DataFrame()
+        self.data = dataset.data
         self.X_train = self.X_test = self.y_train = self.y_test = np.array([])
-
-    def load_data(self) -> None:
-        self.data = pd.read_csv("/app/sigeml/models/quarterly_measurements_CPD1.csv")
-        self.data["collection_date"] = pd.to_datetime(
-            self.data["collection_date"], format="%Y-%m-%d %H:%M:%S"
-        )
-        self.data = self.data.sort_values("collection_date")
-
-    def set_energy_consumption(self) -> None:
-        self.data["consumption"] = (
-            self.data["generated_energy_peak_time"]
-            + self.data["generated_energy_off_peak_time"]
-            + self.data["consumption_peak_time"]
-            + self.data["consumption_off_peak_time"]
-        )
-
-    def remove_outliers(self):
-        if self.config.remove_outliers:
-            self.data["consumption"] = hampel(
-                self.data["consumption"], window_size=16, n=2, imputation=True
-            )
 
     def get_X(self):
         X = (
@@ -64,9 +45,6 @@ class LoadCurveModel:
         )
 
     def train(self):
-        self.load_data()
-        self.set_energy_consumption()
-        self.remove_outliers()
         self.split_data()
         self.run()
 
@@ -79,8 +57,8 @@ class LoadCurveModel:
 
 
 class XGBoostModel(LoadCurveModel):
-    def __init__(self, config: TrainConfig):
-        super().__init__(config)
+    def __init__(self, config: TrainConfig, dataset: Dataset):
+        super().__init__(config, dataset)
         self.params = self.config.model_params
 
     def run(self):
@@ -114,7 +92,9 @@ class XGBoostModel(LoadCurveModel):
             mlflow.log_metric("rmse", rmse)
 
             if not self.config.is_experiment:
-                mlflow.xgboost.log_model(xgb, "model", registered_model_name="XGBRegressor")
+                mlflow.xgboost.log_model(
+                    xgb, "model", registered_model_name="XGBRegressor"
+                )
 
     def evaluate(self, actual, pred) -> None:
         rmse = np.sqrt(mean_squared_error(actual, pred))

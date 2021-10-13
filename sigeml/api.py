@@ -4,10 +4,11 @@ from typing import Optional
 
 from fastapi import FastAPI
 
+from sigeml.models.dataset import Dataset
 from sigeml.models.model import XGBoostModel
 from sigeml.models.predictions import predict_load_curve
 from sigeml.models.repository import ModelsRepository, ExperimentsRepository
-from sigeml.schemas import LoadCurveParams, TrainConfig
+from sigeml.schemas import DataProcessingConfig, LoadCurveParams, TrainConfig
 
 logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger("sigeml")
@@ -18,16 +19,6 @@ models_repository = ModelsRepository()
 experiments_repository = ExperimentsRepository()
 
 
-@app.get("/")
-def root():
-    return {"Hello": "World"}
-
-
-@app.get("/sige")
-def sige():
-    return {"predio_1": random.randint(1000, 1200)}
-
-
 @app.get("/load_curve")
 async def get_load_curve(params: LoadCurveParams):
     load_curve = predict_load_curve(params.data)
@@ -35,10 +26,14 @@ async def get_load_curve(params: LoadCurveParams):
 
 
 @app.post("/train")
-def train_model(config: TrainConfig):
-    if config.model == "xgboost":
-        logger.info(str(config))
-        xgb = XGBoostModel(config)
+def train_model(
+    train_config: TrainConfig, data_processing_config: DataProcessingConfig
+):
+    dataset = Dataset(data_processing_config)
+    dataset.load_data()
+    if train_config.model == "xgboost":
+        logger.info(f"Train config: {train_config}")
+        xgb = XGBoostModel(train_config, dataset)
         xgb.train()
 
 
