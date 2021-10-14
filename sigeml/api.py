@@ -37,11 +37,9 @@ def train_model(
         xgb.train()
 
 
-@app.get("/experiments/")
-def get_experiments(experiment_id: Optional[str] = None):
-    if experiment_id:
-        return experiments_repository.get_runs_infos(experiment_id)
-    return experiments_repository.get_experiments()
+@app.get("/experiments")
+def get_experiments():
+    return experiments_repository.get_runs_infos()
 
 
 @app.get("/models")

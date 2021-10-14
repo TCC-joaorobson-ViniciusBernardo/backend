@@ -47,14 +47,33 @@ class ModelsRepository(Repository):
 
 
 class ExperimentsRepository(Repository):
-    def get_experiments(self) -> list:
+    def get_run_ids_from_registered_models_versions(self) -> list:
+        models = self.client.search_model_versions("")
+        run_ids = [model.run_id for model in models]
+
+        return run_ids
+
+    def get_runs_infos(self) -> list:
         self.logger.info("Retrieving list of experiments")
+        models_run_ids = self.get_run_ids_from_registered_models_versions()
+        runs_infos: list = []
         experiments = self.client.list_experiments()
+        experiments_ids = {exp.experiment_id: exp.name for exp in experiments}
 
-        return [dict(e) for e in experiments]
+        runs = self.client.search_runs(list(experiments_ids.keys()))
 
-    def get_runs_infos(self, experiment_id: str) -> list:
-        self.logger.info(f"Retrieving list of runs for experiment: {experiment_id}")
-        runs = self.client.list_run_infos(experiment_id)
+        for run in runs:
+            run_info = run.to_dictionary()
+            run_info.update(
+                {"experiment_name": experiments_ids[run_info["info"]["experiment_id"]]}
+            )
+            run_info.update(
+                {
+                    "has_registered_model": True
+                    if run_info["info"]["run_id"] in models_run_ids
+                    else False
+                }
+            )
+            runs_infos.append(run_info)
 
-        return [dict(self.client.get_run(r.run_id)) for r in runs]
+        return runs_infos
