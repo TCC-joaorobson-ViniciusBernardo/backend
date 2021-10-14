@@ -5,6 +5,7 @@ mlflow
 pandas
 pydantic
 psycopg2
+redis
 scikit-learn
 uvicorn[standard]
 xgboost
