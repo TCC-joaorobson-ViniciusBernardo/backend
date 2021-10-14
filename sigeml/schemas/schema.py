@@ -34,12 +34,4 @@ class TrainConfig(BaseModel):
     test_size: StrictFloat = 0.2
     model_params: Union[XGBoostParams] = XGBoostParams()
     is_experiment: StrictBool = True
-    experiment_name: StrictStr = ""
-
-    @validator("is_experiment", "experiment_name", always=True)
-    def validate_experiment_name(  # pylint: disable=no-self-argument,no-self-use
-        cls, value, values
-    ) -> str:
-        if "is_experiment" in values and values["is_experiment"] and not value:
-            raise ValueError("Experiment must have a name")
-        return value
+    experiment_name: StrictStr = "Default"

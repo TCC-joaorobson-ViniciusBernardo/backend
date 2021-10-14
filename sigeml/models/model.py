@@ -18,9 +18,7 @@ from sigeml.services.sige import get_data_from_sige
 class LoadCurveModel:
     def __init__(self, config: TrainConfig, dataset: Dataset) -> None:
         mlflow.set_tracking_uri(get_postgres_uri())
-
-        if config.is_experiment:
-            mlflow.set_experiment(config.experiment_name)
+        mlflow.set_experiment(config.experiment_name)
 
         self.config = config
         self.logger = logging.getLogger(__name__)
