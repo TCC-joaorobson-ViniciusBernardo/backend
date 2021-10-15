@@ -61,6 +61,7 @@ class XGBoostModel(LoadCurveModel):
 
     def run(self):
         with mlflow.start_run():
+            mlflow.set_tag("model_name", "XGBRegressor")
             xgb = XGBRegressor(
                 n_estimators=self.params.n_estimators,
                 max_depth=self.params.max_depth,
