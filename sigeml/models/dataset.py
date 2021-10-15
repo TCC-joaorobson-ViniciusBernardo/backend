@@ -9,12 +9,21 @@ class Dataset:
         self.data: pd.DataFrame = pd.DataFrame()
 
     def load_data(self) -> None:
-        #self.data = pd.read_csv("/app/sigeml/models/quarterly_measurements_CPD1.csv")
-        self.data = get_data_from_sige(self.config.query_params)
+        self.data = pd.read_csv("/app/sigeml/models/quarterly_measurements_CPD1.csv")
+        self.set_energy_consumption()
+        #self.data = get_data_from_sige(self.config.query_params)
         self.data["collection_date"] = pd.to_datetime(
             self.data["collection_date"], format="%Y-%m-%d %H:%M:%S"
         )
         self.data = self.data.sort_values("collection_date")
+
+    def set_energy_consumption(self) -> None:
+        self.data["consumption"] = (
+            self.data["generated_energy_peak_time"]
+            + self.data["generated_energy_off_peak_time"]
+            + self.data["consumption_peak_time"]
+            + self.data["consumption_off_peak_time"]
+        )
 
     def remove_outliers(self) -> None:
         if self.config.remove_outliers:
