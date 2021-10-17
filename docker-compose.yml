@@ -13,6 +13,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      training_handler:
+        condition: service_started
     dns:
       - "8.8.8.8"
 
@@ -57,3 +59,10 @@ services:
       interval: 1s
       timeout: 3s
       retries: 5
+
+  training_handler:
+    build:
+      context: .
+      dockerfile: training_handler.dockerfile
+    volumes:
+      - .:/app

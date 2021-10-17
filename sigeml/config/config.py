@@ -1,3 +1,5 @@
+from typing import TypedDict
+
 from dynaconf import Dynaconf
 from dynaconf.constants import DEFAULT_SETTINGS_FILES
 
@@ -7,6 +9,11 @@ settings = Dynaconf(
     load_dotenv=True,
     default_settings_paths=DEFAULT_SETTINGS_FILES,
 )
+
+
+class RedisCredentials(TypedDict):
+    host: str
+    port: int
 
 
 def get_postgres_uri() -> str:
@@ -20,3 +27,7 @@ def get_postgres_uri() -> str:
 
 def get_sige_api_url() -> str:
     return "http://sige.unb.br:443/graph/quarterly-total-consumption/"
+
+
+def get_redis_credentials() -> RedisCredentials:
+    return {"host": settings.REDIS_HOST, "port": settings.REDIS_PORT}
