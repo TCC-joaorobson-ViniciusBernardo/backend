@@ -6,9 +6,16 @@ from fastapi import FastAPI
 
 from sigeml.models.dataset import Dataset
 from sigeml.models.model import XGBoostModel
+
 from sigeml.models.predictions import predict_load_curve
 from sigeml.models.repository import ModelsRepository, ExperimentsRepository
-from sigeml.schemas import DataProcessingConfig, LoadCurveParams, TrainConfig
+from sigeml.schemas import (
+    DataProcessingConfig,
+    LoadCurveParams,
+    TrainConfig,
+    TrainingEvent,
+)
+from sigeml.services.training_queue import TrainingQueue
 
 logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger("sigeml")
@@ -17,6 +24,8 @@ app = FastAPI()
 
 models_repository = ModelsRepository()
 experiments_repository = ExperimentsRepository()
+
+training_queue = TrainingQueue()
 
 
 @app.get("/load_curve")
@@ -29,12 +38,10 @@ async def get_load_curve(params: LoadCurveParams):
 def train_model(
     train_config: TrainConfig, data_processing_config: DataProcessingConfig
 ):
-    dataset = Dataset(data_processing_config)
-    dataset.load_data()
-    if train_config.model == "xgboost":
-        logger.info(f"Train config: {train_config}")
-        xgb = XGBoostModel(train_config, dataset)
-        xgb.train()
+    event = TrainingEvent(
+        train_config=train_config, data_processing_config=data_processing_config
+    )
+    training_queue.add_event(event)
 
 
 @app.get("/experiments")

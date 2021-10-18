@@ -4,3 +4,4 @@ from sigeml.schemas.schema import (
     SIGEQueryParams,
     TrainConfig
 )
+from sigeml.schemas.event import TrainingEvent

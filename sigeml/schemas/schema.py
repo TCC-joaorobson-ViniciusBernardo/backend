@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, StrictBool, StrictInt, StrictFloat, StrictStr, validator
@@ -11,8 +10,8 @@ class LoadCurveParams(BaseModel):
 
 class SIGEQueryParams(BaseModel):
     id: StrictInt
-    start_date: datetime
-    end_date: datetime
+    start_date: StrictInt
+    end_date: StrictInt
     type: StrictStr
 
 
