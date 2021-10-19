@@ -3,14 +3,16 @@ import random
 from typing import Optional
 
 from fastapi import FastAPI
+from fastapi_pagination import Page, add_pagination, paginate
+
 
 from sigeml.models.dataset import Dataset
 from sigeml.models.model import XGBoostModel
-
 from sigeml.models.predictions import predict_load_curve
 from sigeml.models.repository import ModelsRepository, ExperimentsRepository
 from sigeml.schemas import (
     DataProcessingConfig,
+    Experiment,
     LoadCurveParams,
     TrainConfig,
     TrainingEvent,
@@ -44,9 +46,9 @@ def train_model(
     training_queue.add_event(event)
 
 
-@app.get("/experiments")
+@app.get("/experiments", response_model=Page[Experiment])
 def get_experiments():
-    return experiments_repository.get_runs_infos()
+    return paginate(experiments_repository.get_runs_infos())
 
 
 @app.get("/models")
@@ -65,3 +67,5 @@ def delete_model(model_name: str, version: Optional[int] = None):
         models_repository.delete_model_version(model_name, version)
     else:
         models_repository.delete_model(model_name)
+
+add_pagination(app)

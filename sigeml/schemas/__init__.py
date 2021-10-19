@@ -1,5 +1,6 @@
 from sigeml.schemas.schema import (
     DataProcessingConfig,
+    Experiment,
     LoadCurveParams,
     SIGEQueryParams,
     TrainConfig

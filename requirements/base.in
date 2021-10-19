@@ -1,5 +1,6 @@
 dynaconf
 fastapi
+fastapi-pagination
 hampel
 mlflow
 pandas
