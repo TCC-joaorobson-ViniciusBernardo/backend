@@ -74,6 +74,7 @@ class ExperimentsRepository(Repository):
                     else False
                 }
             )
+            run_info["data"]["tags"] = {"model_name": run_info["data"]["tags"]["model_name"]}
             runs_infos.append(run_info)
 
         return runs_infos
