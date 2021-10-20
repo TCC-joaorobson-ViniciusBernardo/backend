@@ -1,8 +1,8 @@
-from sigeml.schemas.schema import (
+from sigeml.schemas.request_body import (
     DataProcessingConfig,
-    Experiment,
     LoadCurveParams,
     SIGEQueryParams,
     TrainConfig
 )
 from sigeml.schemas.event import TrainingEvent
+from sigeml.schemas.response import Experiment

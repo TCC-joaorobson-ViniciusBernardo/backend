@@ -5,8 +5,10 @@ from hampel import hampel
 import mlflow
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import SGDRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
+from sklearn.svm import LinearSVR
 from xgboost import XGBRegressor
 
 from sigeml.schemas import TrainConfig
@@ -21,10 +23,11 @@ class LoadCurveModel:
         mlflow.set_experiment(config.experiment_name)
 
         self.config = config
+        logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
         self.data = dataset.data
         self.X_train = self.X_test = self.y_train = self.y_test = np.array([])
+        self.params = self.config.model_params
 
     def get_X(self):
         X = (
@@ -50,15 +53,12 @@ class LoadCurveModel:
     def run(self):
         pass
 
-    def evaluate(self, actual, pred) -> None:
-        pass
+    def evaluate(self, actual, pred) -> float:
+        rmse = np.sqrt(mean_squared_error(actual, pred))
+        return rmse
 
 
 class XGBoostModel(LoadCurveModel):
-    def __init__(self, config: TrainConfig, dataset: Dataset):
-        super().__init__(config, dataset)
-        self.params = self.config.model_params
-
     def run(self):
         with mlflow.start_run():
             mlflow.set_tag("model_name", "XGBRegressor")
@@ -77,9 +77,7 @@ class XGBoostModel(LoadCurveModel):
             rmse = self.evaluate(self.y_test, y_pred)
 
             self.logger.info(
-                f"XGB model (n_estimators={self.params.n_estimators}, "
-                f"max_depth={self.params.max_depth}, learning_rate={self.params.learning_rate}, "
-                f"gamma={self.params.gamma}, random_state={self.params.random_state})"
+                f"XGBRegressor {[str(p[0]) + '=' + str(p[1]) for p in self.params]}"
             )
             self.logger.info(f"RMSE: {rmse:.2f}")
 
@@ -95,6 +93,82 @@ class XGBoostModel(LoadCurveModel):
                     xgb, "model", registered_model_name="XGBRegressor"
                 )
 
-    def evaluate(self, actual, pred) -> None:
-        rmse = np.sqrt(mean_squared_error(actual, pred))
-        return rmse
+
+class SGDRegressorModel(LoadCurveModel):
+    def run(self):
+        with mlflow.start_run():
+            mlflow.set_tag("model_name", "SGDRegressor")
+            sgd = SGDRegressor(
+                loss=self.params.loss,
+                penalty=self.params.penalty,
+                alpha=self.params.alpha,
+                max_iter=self.params.max_iter,
+                tol=self.params.tol,
+                eta0=self.params.eta0,
+                learning_rate=self.params.learning_rate,
+                random_state=self.params.random_state,
+            ).fit(self.X_train, self.y_train)
+
+            sgd.fit(self.X_train, self.y_train)
+
+            y_pred = sgd.predict(self.X_test)
+
+            rmse = self.evaluate(self.y_test, y_pred)
+
+            self.logger.info(
+                f"SGDRegressor {[str(p[0]) + '=' + str(p[1]) for p in self.params]}"
+            )
+            self.logger.info(f"RMSE: {rmse:.2f}")
+
+            mlflow.log_param("loss", self.params.loss)
+            mlflow.log_param("penalty", self.params.penalty)
+            mlflow.log_param("alpha", self.params.alpha)
+            mlflow.log_param("max_iter", self.params.max_iter)
+            mlflow.log_param("tol", self.params.tol)
+            mlflow.log_param("eta0", self.params.eta0)
+            mlflow.log_param("learning_rate", self.params.learning_rate)
+            mlflow.log_param("random_state", self.params.random_state)
+            mlflow.log_metric("rmse", rmse)
+
+            if not self.config.is_experiment:
+                mlflow.sklearn.log_model(
+                    sgd, "model", registered_model_name="SGDRegressor"
+                )
+
+
+class LinearSVRModel(LoadCurveModel):
+    def run(self):
+        with mlflow.start_run():
+            mlflow.set_tag("model_name", "LinearSVR")
+            svr = LinearSVR(
+                epsilon=self.params.epsilon,
+                tol=self.params.tol,
+                C=self.params.C,
+                loss=self.params.loss,
+                max_iter=self.params.max_iter,
+                random_state=self.params.random_state
+            ).fit(self.X_train, self.y_train)
+
+            svr.fit(self.X_train, self.y_train)
+
+            y_pred = svr.predict(self.X_test)
+
+            rmse = self.evaluate(self.y_test, y_pred)
+
+            self.logger.info(
+                f"LinearSVR {[str(p[0]) + '=' + str(p[1]) for p in self.params]}"
+            )
+            self.logger.info(f"RMSE: {rmse:.2f}")
+
+            mlflow.log_param("loss", self.params.loss)
+            mlflow.log_param("epsilon", self.params.epsilon)
+            mlflow.log_param("tol", self.params.tol)
+            mlflow.log_param("C", self.params.C)
+            mlflow.log_param("max_iter", self.params.max_iter)
+            mlflow.log_param("random_state", self.params.random_state)
+            mlflow.log_metric("rmse", rmse)
+
+            if not self.config.is_experiment:
+                mlflow.sklearn.log_model(
+                    svr, "model", registered_model_name="LinearSVR"
+                )

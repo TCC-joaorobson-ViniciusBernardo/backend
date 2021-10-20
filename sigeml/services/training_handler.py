@@ -3,12 +3,19 @@ import logging
 import time
 
 from sigeml.services.training_queue import TrainingQueue
-from sigeml.models.model import XGBoostModel
+from sigeml.models.model import XGBoostModel, SGDRegressorModel, LinearSVRModel
 from sigeml.models.dataset import Dataset
 from sigeml.schemas import TrainingEvent
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("training_handler")
+
+
+MODELS = {
+    "xgboost": XGBoostModel,
+    "sgdregressor": SGDRegressorModel,
+    "linearsvr": LinearSVRModel,
+}
 
 
 class TrainingHandler:
@@ -29,6 +36,7 @@ class TrainingHandler:
         dataset = Dataset(event.data_processing_config)
         dataset.load_data()
 
-        if event.train_config.model == "xgboost":
-            xgb = XGBoostModel(event.train_config, dataset)
-            xgb.train()
+        model = MODELS[event.train_config.model_params.model](
+            event.train_config, dataset
+        )
+        model.train()
