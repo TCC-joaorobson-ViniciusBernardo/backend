@@ -53,28 +53,60 @@ class ExperimentsRepository(Repository):
 
         return run_ids
 
-    def get_runs_infos(self) -> list:
+    def filter_experiments_by_name(self, experiments, experiment_name: str):
+        experiments_ids: dict = {}
+        if experiment_name:
+            experiments = filter(lambda exp: exp.name == experiment_name, experiments)
+            experiments_ids = {exp.experiment_id: exp.name for exp in experiments}
+        else:
+            experiments_ids = {exp.experiment_id: exp.name for exp in experiments}
+
+        return experiments_ids
+
+    def filter_run_by_model_name(self, run, models):
+        if models:
+            return True if run.data.tags["model_name"] in models else False
+        return True
+
+    def filter_run_by_status(self, run, statuses):
+        if statuses:
+            return True if run.info.status in statuses else False
+        return True
+
+    def get_runs_infos(
+        self, experiment_name: str, models: list, statuses: list
+    ) -> list:
         self.logger.info("Retrieving list of experiments")
         models_run_ids = self.get_run_ids_from_registered_models_versions()
         runs_infos: list = []
-        experiments = self.client.list_experiments()
-        experiments_ids = {exp.experiment_id: exp.name for exp in experiments}
 
-        runs = self.client.search_runs(list(experiments_ids.keys()))
+        experiments = self.client.list_experiments()
+        experiments_ids = self.filter_experiments_by_name(experiments, experiment_name)
+
+        runs = self.client.search_runs(experiment_ids=list(experiments_ids.keys()))
 
         for run in runs:
-            run_info = run.to_dictionary()
-            run_info.update(
-                {"experiment_name": experiments_ids[run_info["info"]["experiment_id"]]}
-            )
-            run_info.update(
-                {
-                    "has_registered_model": True
-                    if run_info["info"]["run_id"] in models_run_ids
-                    else False
+            if self.filter_run_by_model_name(run, models) and self.filter_run_by_status(
+                run, statuses
+            ):
+                run_info = run.to_dictionary()
+                run_info.update(
+                    {
+                        "experiment_name": experiments_ids[
+                            run_info["info"]["experiment_id"]
+                        ]
+                    }
+                )
+                run_info.update(
+                    {
+                        "has_registered_model": True
+                        if run_info["info"]["run_id"] in models_run_ids
+                        else False
+                    }
+                )
+                run_info["data"]["tags"] = {
+                    "model_name": run_info["data"]["tags"]["model_name"]
                 }
-            )
-            run_info["data"]["tags"] = {"model_name": run_info["data"]["tags"]["model_name"]}
-            runs_infos.append(run_info)
+                runs_infos.append(run_info)
 
         return runs_infos
