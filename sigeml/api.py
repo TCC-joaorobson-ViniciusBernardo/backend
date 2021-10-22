@@ -2,9 +2,9 @@ import logging
 import random
 from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi_pagination import Page, add_pagination, paginate
-
+from fastapi.middleware.cors import CORSMiddleware
 
 from sigeml.models.dataset import Dataset
 from sigeml.models.model import XGBoostModel
@@ -23,6 +23,15 @@ logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger("sigeml")
 
 app = FastAPI()
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 models_repository = ModelsRepository()
 experiments_repository = ExperimentsRepository()
@@ -47,8 +56,14 @@ def train_model(
 
 
 @app.get("/experiments", response_model=Page[Experiment])
-def get_experiments():
-    return paginate(experiments_repository.get_runs_infos())
+def get_experiments(request: Request):
+    models_names = request.query_params.getlist("modelType[]")
+    statuses = request.query_params.getlist("status[]")
+    return paginate(
+        experiments_repository.get_runs_infos(
+            request.query_params["experimentName"], models_names, statuses
+        )
+    )
 
 
 @app.get("/models")
@@ -67,5 +82,6 @@ def delete_model(model_name: str, version: Optional[int] = None):
         models_repository.delete_model_version(model_name, version)
     else:
         models_repository.delete_model(model_name)
+
 
 add_pagination(app)
