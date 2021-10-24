@@ -104,9 +104,14 @@ class ExperimentsRepository(Repository):
                         else False
                     }
                 )
-                run_info["data"]["tags"] = {
-                    "model_name": run_info["data"]["tags"]["model_name"]
-                }
                 runs_infos.append(run_info)
 
         return runs_infos
+
+
+    def delete_run(self, run_id: str) -> None:
+        self.logger.info(f"Deleting run: {run_id}")
+        try:
+            self.client.delete_run(run_id)
+        except mlflow.exceptions.MlflowException as e:
+            self.logger.error(f"Unable to delete the runn: {e}")
