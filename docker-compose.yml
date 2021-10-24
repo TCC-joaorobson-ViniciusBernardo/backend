@@ -66,3 +66,4 @@ services:
       dockerfile: training_handler.dockerfile
     volumes:
       - .:/app
+    restart: on-failure
