@@ -24,14 +24,10 @@ class ExperimentInfo(BaseModel):
     user_id: StrictStr
 
 
-class ExperimentTags(BaseModel):
-    model_name: StrictStr
-
-
 class ExperimentData(BaseModel):
     metrics: dict
     params: dict
-    tags: ExperimentTags
+    tags: dict
 
 
 class Experiment(BaseModel):

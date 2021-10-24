@@ -46,12 +46,8 @@ async def get_load_curve(params: LoadCurveParams):
 
 
 @app.post("/train")
-def train_model(
-    train_config: TrainConfig, data_processing_config: DataProcessingConfig
-):
-    event = TrainingEvent(
-        train_config=train_config, data_processing_config=data_processing_config
-    )
+def train_model(train_config: TrainConfig, data_processing_config: DataProcessingConfig):
+    event = TrainingEvent(train_config=train_config, data_processing_config=data_processing_config)
     training_queue.add_event(event)
 
 
@@ -61,7 +57,7 @@ def get_experiments(request: Request):
     statuses = request.query_params.getlist("status[]")
     return paginate(
         experiments_repository.get_runs_infos(
-            request.query_params["experimentName"], models_names, statuses
+            request.query_params.get("experimentName"), models_names, statuses
         )
     )
 
@@ -82,6 +78,11 @@ def delete_model(model_name: str, version: Optional[int] = None):
         models_repository.delete_model_version(model_name, version)
     else:
         models_repository.delete_model(model_name)
+
+
+@app.delete("/delete_run/{run_id}")
+def delete_run(run_id: str):
+    experiments_repository.delete_run(run_id)
 
 
 add_pagination(app)
