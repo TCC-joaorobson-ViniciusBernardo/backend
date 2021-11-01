@@ -3,7 +3,7 @@ import logging
 import time
 
 from sigeml.services.training_queue import TrainingQueue
-from sigeml.models.model import XGBoostModel, SGDRegressorModel, LinearSVRModel
+from sigeml.models.model import XGBoostModel, LinearRegressorModel, LinearSVRModel
 from sigeml.models.dataset import Dataset
 from sigeml.schemas import TrainingEvent
 
@@ -13,7 +13,7 @@ logger = logging.getLogger("training_handler")
 
 MODELS = {
     "xgboost": XGBoostModel,
-    "sgdregressor": SGDRegressorModel,
+    "linearregressor": LinearRegressorModel,
     "linearsvr": LinearSVRModel,
 }
 

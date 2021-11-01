@@ -30,16 +30,11 @@ class LinearSVRParams(BaseModel):
     random_state: Optional[StrictInt] = None
 
 
-class SGDRegressorParams(BaseModel):
-    model: Literal["sgdregressor"]
-    loss: Literal["squared_error", "huber", "epsilon_insensitive", "squared_epsilon_insensitive"] = "squared_error"
-    penalty: Literal["l2", "l1", "elasticnet"] = "l2"
-    alpha: StrictFloat = 0.0001
-    max_iter: StrictInt = 1000
-    tol: StrictFloat = 1e-3
-    eta0: StrictFloat = 0.01
-    learning_rate: StrictStr = "invscaling"
-    random_state: Optional[StrictInt] = None
+class LinearRegressorParams(BaseModel):
+    model: Literal["linearregressor"]
+    normalize: StrictBool = False
+    positive: StrictBool = False
+    fit_intercept: StrictBool = False
 
 
 class XGBoostParams(BaseModel):
@@ -52,7 +47,9 @@ class XGBoostParams(BaseModel):
 
 
 class TrainConfig(BaseModel):
-    model_params: Union[LinearSVRParams, SGDRegressorParams, XGBoostParams] = Field(discriminator="model")
+    model_params: Union[LinearSVRParams, LinearRegressorParams, XGBoostParams] = Field(
+        discriminator="model"
+    )
     test_size: StrictFloat = 0.2
     is_experiment: StrictBool = True
     experiment_name: StrictStr = "Default"
