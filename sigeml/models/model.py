@@ -52,12 +52,12 @@ class LoadCurveModel:
 
     def get_test_points(self):
         test_data_sample = self.get_sample_from_test_data()
-        return list(map(lambda d: {"x": d[0], "y": d[1]}, test_data_sample))
+        return list(map(lambda d: {"x": float(d[0]), "y": float(d[1])}, test_data_sample))
 
     @staticmethod
     def get_load_curve(y_pred):
-        preds = zip(np.arange(0, 23.25, 0.25), y_pred)
-        return list(map(lambda d: {"x": d[0], "y": d[1]}, preds))
+        preds = zip(np.arange(0, 24, 0.25), y_pred)
+        return list(map(lambda d: {"x": float(d[0]), "y": float(d[1])}, preds))
 
     def split_data(self):
         X = self.get_X()

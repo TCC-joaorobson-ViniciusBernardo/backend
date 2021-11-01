@@ -5,6 +5,7 @@ import mlflow
 from mlflow.tracking import MlflowClient
 
 from sigeml.config.config import get_postgres_uri
+from sigeml.services.predictions import get_experiment_predictions
 
 
 class Repository:
@@ -63,6 +64,17 @@ class ExperimentsRepository(Repository):
 
         return experiments_ids
 
+    @staticmethod
+    def add_predictions_in_run_info(run_info) -> None:
+        predictions = get_experiment_predictions(run_info["info"]["run_id"])
+        run_info["predictions"] = {}
+        if predictions:
+            run_info["predictions"]["load_curve"] = predictions.get("load_curve", [])
+            run_info["predictions"]["test_data_points"] = predictions.get("test_data_points", [])
+        else:
+            run_info["predictions"]["load_curve"] = []
+            run_info["predictions"]["test_data_points"] = []
+
     def filter_run_by_model_name(self, run, models):
         if models:
             return True if run.data.tags["model_name"] in models else False
@@ -73,9 +85,7 @@ class ExperimentsRepository(Repository):
             return True if run.info.status in statuses else False
         return True
 
-    def get_runs_infos(
-        self, experiment_name: str, models: list, statuses: list
-    ) -> list:
+    def get_runs_infos(self, experiment_name: str, models: list, statuses: list) -> list:
         self.logger.info("Retrieving list of experiments")
         models_run_ids = self.get_run_ids_from_registered_models_versions()
         runs_infos: list = []
@@ -91,11 +101,7 @@ class ExperimentsRepository(Repository):
             ):
                 run_info = run.to_dictionary()
                 run_info.update(
-                    {
-                        "experiment_name": experiments_ids[
-                            run_info["info"]["experiment_id"]
-                        ]
-                    }
+                    {"experiment_name": experiments_ids[run_info["info"]["experiment_id"]]}
                 )
                 run_info.update(
                     {
@@ -104,10 +110,10 @@ class ExperimentsRepository(Repository):
                         else False
                     }
                 )
+                self.add_predictions_in_run_info(run_info)
                 runs_infos.append(run_info)
 
         return runs_infos
-
 
     def delete_run(self, run_id: str) -> None:
         self.logger.info(f"Deleting run: {run_id}")

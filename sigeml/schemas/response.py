@@ -30,8 +30,14 @@ class ExperimentData(BaseModel):
     tags: dict
 
 
+class ExperimentPredictions(BaseModel):
+    load_curve: list
+    test_data_points: list
+
+
 class Experiment(BaseModel):
     info: ExperimentInfo
     data: ExperimentData
     experiment_name: StrictStr
     has_registered_model: StrictBool
+    predictions: ExperimentPredictions

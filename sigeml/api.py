@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from sigeml.models.dataset import Dataset
 from sigeml.models.model import XGBoostModel
-from sigeml.models.predictions import predict_load_curve
+from sigeml.services.predictions import predict_load_curve
 from sigeml.models.repository import ModelsRepository, ExperimentsRepository
 from sigeml.schemas import (
     DataProcessingConfig,
