@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error
-from sklearn.svm import LinearSVR
+from sklearn.svm import SVR
 from xgboost import XGBRegressor
 
 from sigeml.schemas import TrainConfig
@@ -95,7 +95,12 @@ class XGBoostModel(LoadCurveModel):
             )
             self.logger.info(f"MAE: {mae:.2f}")
 
-            mlflow.log_params({**self.model_params.dict(), **self.data_params.dict()})
+            params = {
+                **self.model_params.dict(),
+                **self.data_params.dict(),
+                **{"model_name": "XGBRegressor"},
+            }
+            mlflow.log_params(params)
             mlflow.log_metric("mae", mae)
 
             if not self.config.is_experiment:
@@ -124,7 +129,12 @@ class LinearRegressorModel(LoadCurveModel):
             )
             self.logger.info(f"MAE: {mae:.2f}")
 
-            mlflow.log_params({**self.model_params.dict(), **self.data_params.dict()})
+            params = {
+                **self.model_params.dict(),
+                **self.data_params.dict(),
+                **{"model_name": "LinearRegressor"},
+            }
+            mlflow.log_params(params)
 
             mlflow.log_metric("mae", mae)
 
@@ -136,17 +146,10 @@ class LinearRegressorModel(LoadCurveModel):
             store_experiment_predictions(run.info.run_id, self.get_test_points(), load_curve)
 
 
-class LinearSVRModel(LoadCurveModel):
+class SVRModel(LoadCurveModel):
     def run(self):
         with mlflow.start_run():
-            svr = LinearSVR(
-                epsilon=self.params.epsilon,
-                tol=self.params.tol,
-                C=self.params.C,
-                loss=self.params.loss,
-                max_iter=self.params.max_iter,
-                random_state=self.params.random_state,
-            ).fit(self.X_train, self.y_train)
+            svr = SVR(**self.model_params.dict()).fit(self.X_train, self.y_train)
 
             svr.fit(self.X_train, self.y_train)
 
@@ -154,15 +157,20 @@ class LinearSVRModel(LoadCurveModel):
 
             mae = self.evaluate(self.y_test, y_pred)
 
-            self.logger.info(f"LinearSVR {[str(p[0]) + '=' + str(p[1]) for p in self.params]}")
+            self.logger.info(f"SVR {[str(p[0]) + '=' + str(p[1]) for p in self.model_params]}")
             self.logger.info(f"MAE: {mae:.2f}")
 
-            mlflow.log_params({**self.model_params.dict(), **self.data_params.dict()})
+            params = {
+                **self.model_params.dict(),
+                **self.data_params.dict(),
+                **{"model_name": "SVR"},
+            }
+            mlflow.log_params(params)
 
             mlflow.log_metric("mae", mae)
 
             if not self.config.is_experiment:
-                mlflow.sklearn.log_model(svr, "model", registered_model_name="LinearSVR")
+                mlflow.sklearn.log_model(svr, "model", registered_model_name="SVR")
 
             run = mlflow.active_run()
             load_curve = self.get_load_curve(svr.predict(np.arange(0, 23.25, 0.25).reshape(-1, 1)))
