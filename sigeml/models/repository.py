@@ -59,7 +59,8 @@ class ExperimentsRepository(Repository):
         experiments_ids: dict = {}
         name_regex = re.compile(f".*{experiment_name}.*")
         if experiment_name:
-            experiments = filter(lambda exp: True if name_regex.match(exp.name) else False,
+            name_regex = re.compile(f".*{experiment_name.lower()}.*")
+            experiments = filter(lambda exp: True if name_regex.match(exp.name.lower()) else False,
                                  experiments)
             experiments_ids = {exp.experiment_id: exp.name for exp in experiments}
         else:
