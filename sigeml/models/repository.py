@@ -81,7 +81,7 @@ class ExperimentsRepository(Repository):
 
     def filter_run_by_model_name(self, run, models):
         if models:
-            return True if run.data.params["model_name"] in models else False
+            return True if run.data.params.get("model_name") in models else False
         return True
 
     def filter_run_by_status(self, run, statuses):
