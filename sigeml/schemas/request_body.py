@@ -48,9 +48,7 @@ class XGBoostParams(BaseModel):
 
 
 class TrainConfig(BaseModel):
-    model_params: Union[SVRParams, LinearRegressorParams, XGBoostParams] = Field(
-        discriminator="model"
-    )
+    model_params: Union[SVRParams, LinearRegressorParams, XGBoostParams]
     test_size: StrictFloat = 0.2
     is_experiment: StrictBool = True
     experiment_name: StrictStr = "Default"
