@@ -7,7 +7,6 @@ from fastapi_pagination import Page, add_pagination, paginate
 from fastapi.middleware.cors import CORSMiddleware
 
 from sigeml.models.dataset import Dataset
-from sigeml.models.model import XGBoostModel
 from sigeml.services.predictions import predict_load_curve
 from sigeml.models.repository import ModelsRepository, ExperimentsRepository
 from sigeml.schemas import (

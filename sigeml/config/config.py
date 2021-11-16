@@ -26,7 +26,7 @@ def get_postgres_uri() -> str:
 
 
 def get_sige_api_url() -> str:
-    return "http://sige.unb.br:443/graph/quarterly-total-consumption/"
+    return "http://sige.unb.br:443"
 
 
 def get_redis_credentials() -> RedisCredentials:

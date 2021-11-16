@@ -3,7 +3,7 @@ import logging
 import time
 
 from sigeml.services.training_queue import TrainingQueue
-from sigeml.models.model import XGBoostModel, LinearRegressorModel, SVRModel
+from sigeml.models.load_curves import XGBoostModel, LinearRegressorModel, SVRModel
 from sigeml.models.dataset import Dataset
 from sigeml.schemas import TrainingEvent
 
@@ -33,10 +33,11 @@ class TrainingHandler:
         event = TrainingEvent(**json.loads(self.queue.get_event()))
         logger.info(f"Processing event: {event}")
 
-        dataset = Dataset(event.data_processing_config)
+        dataset = Dataset(
+            event.data_processing_config,
+            data_path="/app/sigeml/models/quarterly_measurements_CPD1.csv",
+        )
         dataset.load_data()
 
-        model = MODELS[event.train_config.model_params.model](
-            event.train_config, dataset
-        )
+        model = MODELS[event.train_config.model_params.model](event.train_config, dataset)
         model.train()
