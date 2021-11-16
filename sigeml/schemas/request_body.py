@@ -1,3 +1,5 @@
+from time import time
+
 from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, Field, StrictBool, StrictInt, StrictFloat, StrictStr, validator
@@ -10,8 +12,8 @@ class LoadCurveParams(BaseModel):
 
 class SIGEQueryParams(BaseModel):
     id: StrictInt
-    start_date: StrictInt
-    end_date: StrictInt
+    start_date: StrictInt = int(time())
+    end_date: StrictInt = int(time()) - 3600
     type: StrictStr
 
 
@@ -32,7 +34,6 @@ class SVRParams(BaseModel):
 
 class LinearRegressorParams(BaseModel):
     model: Literal["linearregressor"]
-    normalize: StrictBool = False
     positive: StrictBool = False
     fit_intercept: StrictBool = False
 
@@ -40,10 +41,10 @@ class LinearRegressorParams(BaseModel):
 class XGBoostParams(BaseModel):
     model: Literal["xgboost"]
     n_estimators: StrictInt = 100
-    max_depth: Optional[StrictInt] = None
-    learning_rate: Optional[StrictFloat] = None
-    gamma: Optional[StrictFloat] = None
-    random_state: Optional[StrictInt] = None
+    max_depth: Optional[StrictInt] = 5
+    learning_rate: Optional[StrictFloat] = 0.3
+    gamma: Optional[StrictFloat] = 0 
+    random_state: Optional[StrictInt] = 0
 
 
 class TrainConfig(BaseModel):

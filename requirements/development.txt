@@ -5,16 +5,20 @@
 #
 #    pip-compile-multi
 #
-astroid==2.8.3
+astroid==2.8.5
     # via pylint
-black==21.9b0
+black==21.10b0
     # via -r requirements/development.in
 click==8.0.3
     # via
     #   black
     #   pip-compile-multi
     #   pip-tools
-isort==5.9.3
+importlib-metadata==4.8.2
+    # via
+    #   click
+    #   pep517
+isort==5.10.1
     # via pylint
 lazy-object-proxy==1.6.0
     # via astroid
@@ -38,25 +42,34 @@ pycodestyle==2.8.0
     # via -r requirements/development.in
 pylint==2.11.1
     # via -r requirements/development.in
-regex==2021.10.8
+regex==2021.11.10
     # via black
 toml==0.10.2
     # via pylint
-tomli==1.2.1
+tomli==1.2.2
     # via
     #   black
     #   pep517
 toposort==1.7
     # via pip-compile-multi
-typing-extensions==3.10.0.2
+typed-ast==1.5.0
     # via
     #   astroid
     #   black
+typing-extensions==4.0.0
+    # via
+    #   astroid
+    #   black
+    #   importlib-metadata
     #   pylint
 wheel==0.37.0
     # via pip-tools
-wrapt==1.13.2
+wrapt==1.13.3
     # via astroid
+zipp==3.6.0
+    # via
+    #   importlib-metadata
+    #   pep517
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

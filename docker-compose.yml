@@ -26,15 +26,6 @@ services:
     volumes:
       - ./mosquitto/config:/mosquitto/config
 
-  publisher:
-    build:
-      context: .
-      dockerfile: publisher.dockerfile
-    volumes:
-      - .:/app
-    depends_on:
-      - "mqtt-broker"
-
   postgres:
     image: postgres:13.3-alpine
     ports:
@@ -67,3 +58,13 @@ services:
     volumes:
       - .:/app
     restart: always
+
+  time_series_handler:
+    build:
+      context: .
+      dockerfile: time_series_handler.dockerfile
+    volumes:
+      - .:/app
+    restart: always
+    depends_on:
+      - "mqtt-broker"
