@@ -1,13 +1,14 @@
 from keras.models import load_model
 import numpy as np
 
+
 class TimeSeriesModel:
     def __init__(self, model_path: str) -> None:
         self.model_path = model_path
         self.model = self.load_model()
 
     def load_model(self):
-        return load_model(self.model_path) 
+        return load_model(self.model_path)
 
     def predict(self):
         pass

@@ -43,7 +43,7 @@ class XGBoostParams(BaseModel):
     n_estimators: StrictInt = 100
     max_depth: Optional[StrictInt] = 5
     learning_rate: Optional[StrictFloat] = 0.3
-    gamma: Optional[StrictFloat] = 0 
+    gamma: Optional[StrictFloat] = 0
     random_state: Optional[StrictInt] = 0
 
 

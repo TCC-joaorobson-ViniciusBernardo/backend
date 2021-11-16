@@ -1,1 +1,1 @@
-from sigeml.models.load_curves.model import XGBoostModel, LinearRegressorModel, SVRModel 
+from sigeml.models.load_curves.model import XGBoostModel, LinearRegressorModel, SVRModel
